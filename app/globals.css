@@ -59,3 +59,16 @@ body {
 html {
   scroll-behavior: smooth;
 }
+
+/* Add backdrop blur support */
+.backdrop-blur-overlay {
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.6);
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000;
+  -webkit-perspective: 1000;
+  will-change: opacity;
+}
