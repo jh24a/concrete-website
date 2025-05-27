@@ -2,7 +2,7 @@
 
 import { useInView } from "@/hooks/use-in-view"
 import { cn } from "@/lib/utils"
-import { type ReactNode, useEffect, useState } from "react"
+import { type ReactNode, useEffect, useState, Children, isValidElement, type CSSProperties } from "react"
 
 interface AnimationProps {
   children: ReactNode
@@ -13,25 +13,57 @@ interface AnimationProps {
   rootMargin?: string
 }
 
+interface StaggeredChildrenProps extends AnimationProps {
+  staggerDelay?: number
+  initialDelay?: number
+}
+
 // Helper to check if user prefers reduced motion
-function usePrefersReducedMotion() {
+function usePrefersReducedMotion(): boolean {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
 
   useEffect(() => {
+    // Check if window is available (SSR safety)
+    if (typeof window === "undefined") return
+
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)")
     setPrefersReducedMotion(mediaQuery.matches)
 
-    const handleChange = () => {
-      setPrefersReducedMotion(mediaQuery.matches)
+    const handleChange = (event: MediaQueryListEvent) => {
+      setPrefersReducedMotion(event.matches)
     }
 
-    mediaQuery.addEventListener("change", handleChange)
-    return () => {
-      mediaQuery.removeEventListener("change", handleChange)
+    // Use the newer addEventListener if available, fallback to addListener
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener("change", handleChange)
+      return () => mediaQuery.removeEventListener("change", handleChange)
+    } else {
+      // Fallback for older browsers
+      mediaQuery.addListener(handleChange)
+      return () => mediaQuery.removeListener(handleChange)
     }
   }, [])
 
   return prefersReducedMotion
+}
+
+function getAnimationStyles(
+  isInView: boolean,
+  prefersReducedMotion: boolean,
+  duration: number,
+  delay: number,
+  transform: { visible: string; hidden: string },
+): CSSProperties {
+  if (prefersReducedMotion) {
+    return { opacity: 1, transform: transform.visible }
+  }
+
+  return {
+    opacity: isInView ? 1 : 0,
+    transform: isInView ? transform.visible : transform.hidden,
+    transition: `opacity ${duration}ms ease-out, transform ${duration}ms ease-out`,
+    transitionDelay: `${delay}ms`,
+  }
 }
 
 export function FadeIn({
@@ -45,21 +77,13 @@ export function FadeIn({
   const { ref, isInView } = useInView({ threshold, rootMargin })
   const prefersReducedMotion = usePrefersReducedMotion()
 
+  const styles = getAnimationStyles(isInView, prefersReducedMotion, duration, delay, {
+    visible: "translateY(0)",
+    hidden: "translateY(20px)",
+  })
+
   return (
-    <div
-      ref={ref}
-      className={cn(className)}
-      style={
-        prefersReducedMotion
-          ? { opacity: 1 }
-          : {
-              opacity: isInView ? 1 : 0,
-              transform: isInView ? "translateY(0)" : "translateY(20px)",
-              transition: `opacity ${duration}ms ease-out, transform ${duration}ms ease-out`,
-              transitionDelay: `${delay}ms`,
-            }
-      }
-    >
+    <div ref={ref} className={cn(className)} style={styles}>
       {children}
     </div>
   )
@@ -76,21 +100,13 @@ export function SlideInLeft({
   const { ref, isInView } = useInView({ threshold, rootMargin })
   const prefersReducedMotion = usePrefersReducedMotion()
 
+  const styles = getAnimationStyles(isInView, prefersReducedMotion, duration, delay, {
+    visible: "translateX(0)",
+    hidden: "translateX(-50px)",
+  })
+
   return (
-    <div
-      ref={ref}
-      className={cn(className)}
-      style={
-        prefersReducedMotion
-          ? { opacity: 1 }
-          : {
-              opacity: isInView ? 1 : 0,
-              transform: isInView ? "translateX(0)" : "translateX(-50px)",
-              transition: `opacity ${duration}ms ease-out, transform ${duration}ms ease-out`,
-              transitionDelay: `${delay}ms`,
-            }
-      }
-    >
+    <div ref={ref} className={cn(className)} style={styles}>
       {children}
     </div>
   )
@@ -107,21 +123,13 @@ export function SlideInRight({
   const { ref, isInView } = useInView({ threshold, rootMargin })
   const prefersReducedMotion = usePrefersReducedMotion()
 
+  const styles = getAnimationStyles(isInView, prefersReducedMotion, duration, delay, {
+    visible: "translateX(0)",
+    hidden: "translateX(50px)",
+  })
+
   return (
-    <div
-      ref={ref}
-      className={cn(className)}
-      style={
-        prefersReducedMotion
-          ? { opacity: 1 }
-          : {
-              opacity: isInView ? 1 : 0,
-              transform: isInView ? "translateX(0)" : "translateX(50px)",
-              transition: `opacity ${duration}ms ease-out, transform ${duration}ms ease-out`,
-              transitionDelay: `${delay}ms`,
-            }
-      }
-    >
+    <div ref={ref} className={cn(className)} style={styles}>
       {children}
     </div>
   )
@@ -138,21 +146,13 @@ export function ScaleIn({
   const { ref, isInView } = useInView({ threshold, rootMargin })
   const prefersReducedMotion = usePrefersReducedMotion()
 
+  const styles = getAnimationStyles(isInView, prefersReducedMotion, duration, delay, {
+    visible: "scale(1)",
+    hidden: "scale(0.95)",
+  })
+
   return (
-    <div
-      ref={ref}
-      className={cn(className)}
-      style={
-        prefersReducedMotion
-          ? { opacity: 1 }
-          : {
-              opacity: isInView ? 1 : 0,
-              transform: isInView ? "scale(1)" : "scale(0.95)",
-              transition: `opacity ${duration}ms ease-out, transform ${duration}ms ease-out`,
-              transitionDelay: `${delay}ms`,
-            }
-      }
-    >
+    <div ref={ref} className={cn(className)} style={styles}>
       {children}
     </div>
   )
@@ -166,31 +166,37 @@ export function StaggeredChildren({
   duration = 500,
   threshold = 0.1,
   rootMargin = "0px",
-}: AnimationProps & { staggerDelay?: number; initialDelay?: number }) {
+}: StaggeredChildrenProps) {
   const { ref, isInView } = useInView({ threshold, rootMargin })
   const prefersReducedMotion = usePrefersReducedMotion()
 
+  // Safely convert children to array and filter valid elements
+  const childrenArray = Children.toArray(children).filter(isValidElement)
+
+  if (childrenArray.length === 0) {
+    return <div ref={ref} className={cn(className)} />
+  }
+
   return (
     <div ref={ref} className={cn(className)}>
-      {Array.isArray(children)
-        ? children.map((child, index) => (
-            <div
-              key={index}
-              style={
-                prefersReducedMotion
-                  ? { opacity: 1 }
-                  : {
-                      opacity: isInView ? 1 : 0,
-                      transform: isInView ? "translateY(0)" : "translateY(20px)",
-                      transition: `opacity ${duration}ms ease-out, transform ${duration}ms ease-out`,
-                      transitionDelay: `${initialDelay + index * staggerDelay}ms`,
-                    }
-              }
-            >
-              {child}
-            </div>
-          ))
-        : children}
+      {childrenArray.map((child, index) => {
+        const styles = getAnimationStyles(
+          isInView,
+          prefersReducedMotion,
+          duration,
+          initialDelay + index * staggerDelay,
+          {
+            visible: "translateY(0)",
+            hidden: "translateY(20px)",
+          },
+        )
+
+        return (
+          <div key={child.key || index} style={styles}>
+            {child}
+          </div>
+        )
+      })}
     </div>
   )
 }
