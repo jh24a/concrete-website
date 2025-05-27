@@ -71,8 +71,10 @@ const nextConfig = {
   // Compress responses
   compress: true,
   
-  // Enable SWC minification
-  swcMinify: true,
+  // Enable SWC minification    (not needed, it is enabled by default)
+  // compiler: {
+  //   swcMinify: true,
+  // },
   
   // Generate standalone output for deployment
   output: 'standalone',
