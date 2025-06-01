@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { CheckCircle, Loader2, AlertCircle } from "lucide-react"
 import type { ContactFormData, ContactFormErrors } from "@/types"
+import { FORMSPREE_ENDPOINT } from "@/lib/constants"
 
 const initialFormState: ContactFormData = {
   name: "",
@@ -133,27 +134,30 @@ export function ContactForm() {
     setIsSubmitting(true)
 
     try {
-      // Simulate form submission with potential failure
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          // Simulate 5% failure rate for testing
-          if (Math.random() < 0.05) {
-            reject(new Error("Network error"))
-          } else {
-            resolve(undefined)
-          }
-        }, 2000)
-      })
+      const formData = new FormData();
+          Object.entries(formState).forEach(([key, value]) => {
+            formData.append(key, value);
+          });
 
-      setIsSubmitted(true)
-      setFormState(initialFormState)
-      setTouched({})
-      setErrors({})
+          const response = await fetch(FORMSPREE_ENDPOINT, {
+            method: "POST",
+            body: formData,
+            headers: { Accept: "application/json" },
+          });
+
+          if (!response.ok) {
+            throw new Error("Network error");
+          }
+
+      setIsSubmitted(true);
+      setFormState(initialFormState);
+      setTouched({});
+      setErrors({});
     } catch (error) {
-      console.error("Form submission error:", error)
+      console.error("Form submission error:", error);
       setSubmitError("There was an error submitting your form. Please try again later.")
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
   }
 
@@ -164,6 +168,7 @@ export function ContactForm() {
     setTouched({})
     setFormState(initialFormState)
   }, [])
+
 
   const isFormValid = useMemo(() => {
     return (
@@ -190,7 +195,7 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 rounded-lg border bg-white p-8 shadow-md" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-5 rounded-lg border bg-form p-8 shadow-md" noValidate>
       {submitError && (
         <div className="flex items-center gap-2 rounded-md bg-red-50 p-3 text-red-700" role="alert">
           <AlertCircle className="h-5 w-5 flex-shrink-0" />
@@ -319,8 +324,7 @@ export function ContactForm() {
         )}
       </div>
 
-      <Button
-        type="submit"
+      <Button type="submit"
         className="w-full h-12 text-base font-medium"
         disabled={isSubmitting || !isFormValid}
         aria-describedby="submit-description"

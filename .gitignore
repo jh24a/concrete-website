@@ -3,7 +3,8 @@
 # dependencies
 /node_modules
 
-
+#personal information
+constants.ts 
 
 # testing
 /coverage

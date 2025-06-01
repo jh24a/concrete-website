@@ -4,14 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
-
-const navigationItems = [
-  { href: "#services", label: "Services" },
-  { href: "#portfolio", label: "Portfolio" },
-  { href: "#about", label: "About" },
-  { href: "#testimonials", label: "Testimonials" },
-  { href: "#contact", label: "Contact" },
-]
+import { NAVIGATION_ITEMS } from "@/lib/constants"
 
 export function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false)
@@ -192,7 +185,7 @@ export function MobileMenu() {
               }}
             >
               <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: 1 }}>
-                {navigationItems.map((item, index) => (
+                {NAVIGATION_ITEMS.map((item, index) => (
                   <Link
                     key={item.href}
                     ref={index === 0 ? firstLinkRef : undefined}

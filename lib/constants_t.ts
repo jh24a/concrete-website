@@ -1,3 +1,10 @@
+  /* This is a template for what 'constant.ts' should look like.
+   * Fill this in with your own details and rename to 'constants.ts' .
+   * (it is importeted in many files of the components folder 
+   *  - if you want to run website immediately, just renamte this file to 'constants.ts', but it is 
+   *  recommended to make a new file and copy the template to fill in).
+  */
+
 export const COMPANY_INFO = {
   name: "ConcreteFinish",
   tagline: "Premium Concrete Floor Finishes",

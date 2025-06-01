@@ -19,7 +19,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://concretefinish.com"),
+  metadataBase: new URL(COMPANY_INFO.website),  
   title: {
     default: `${COMPANY_INFO.name} - ${COMPANY_INFO.tagline}`,
     template: `%s | ${COMPANY_INFO.name}`,
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   keywords: [
     "concrete flooring",
     "polished concrete",
-    "epoxy coatings",
+    "epoxy coatings", 
     "decorative concrete",
     "concrete finishing",
     "floor refinishing",
@@ -46,8 +46,9 @@ export const metadata: Metadata = {
     "concrete repair",
     "floor restoration",
     "durable flooring",
+    "concrete"
   ],
-  authors: [{ name: COMPANY_INFO.name, url: "https://concretefinish.com" }],
+  authors: [{ name: COMPANY_INFO.name, url: COMPANY_INFO.website }],
   creator: COMPANY_INFO.name,
   publisher: COMPANY_INFO.name,
   formatDetection: {
@@ -71,20 +72,20 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://concretefinish.com",
+    url: COMPANY_INFO.website,
     siteName: COMPANY_INFO.name,
     title: `${COMPANY_INFO.name} - ${COMPANY_INFO.tagline}`,
     description: COMPANY_INFO.description,
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/og-image.jpg", // update with actual image path (based on )
         width: 1200,
         height: 630,
         alt: `${COMPANY_INFO.name} - Premium Concrete Floor Finishes`,
         type: "image/jpeg",
       },
       {
-        url: "/og-image-square.jpg",
+        url: "/og-image-square.jpg", // update with actual image path
         width: 1200,
         height: 1200,
         alt: `${COMPANY_INFO.name} - Premium Concrete Floor Finishes`,
@@ -96,28 +97,27 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${COMPANY_INFO.name} - ${COMPANY_INFO.tagline}`,
     description: COMPANY_INFO.description,
-    images: ["/og-image.jpg"],
-    creator: "@concretefinish",
-    site: "@concretefinish",
+    images: ["/og-image.jpg"], //update with actual image path
+    creator: "@concretefinish", // update with actual Twitter handle
+    site: "@concretefinish", //update
   },
   alternates: {
-    canonical: "https://concretefinish.com",
+    canonical: COMPANY_INFO.website,
   },
   category: "Construction & Home Improvement",
   classification: "Business",
-  other: {
+  other: { 
     "business:contact_data:street_address": COMPANY_INFO.address,
-    "business:contact_data:locality": "Building City",
-    "business:contact_data:region": "ST",
-    "business:contact_data:postal_code": "12345",
-    "business:contact_data:country_name": "United States",
+    "business:contact_data:locality": COMPANY_INFO.city,
+    "business:contact_data:region": COMPANY_INFO.state, // 2-letter ISO 3166-2 code
+    "business:contact_data:postal_code": COMPANY_INFO.zip,
+    "business:contact_data:country_code": COMPANY_INFO.country, // 2-letter ISO 3166-1 alpha-2 code
     "business:contact_data:email": COMPANY_INFO.email,
     "business:contact_data:phone_number": COMPANY_INFO.phone,
-    "business:contact_data:website": "https://concretefinish.com",
-  },
-    generator: 'v0.dev'
-}
+    "business:contact_data:website": COMPANY_INFO.website,
 
+  }
+} 
 export default function RootLayout({
   children,
 }: {
@@ -125,12 +125,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <head>
-        {/* Additional SEO Meta Tags */}
-        <meta name="geo.region" content="US-ST" />
-        <meta name="geo.placename" content="Building City" />
-        <meta name="geo.position" content="40.7128;-74.0060" />
-        <meta name="ICBM" content="40.7128, -74.0060" />
+      <head>    
+        {/* Additional SEO Meta Tags */} 
+        <meta name="geo.region" content={`${COMPANY_INFO.country}-${COMPANY_INFO.state}`} />
+        <meta name="geo.placename" content={COMPANY_INFO.city} />
+        <meta name="geo.position" content="" />
+        <meta name="ICBM" content="" />
 
         {/* Business Schema */}
         <script
@@ -139,25 +139,25 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "LocalBusiness",
-              "@id": "https://concretefinish.com/#business",
+              "@id": `${COMPANY_INFO.website}/#business`,
               name: COMPANY_INFO.name,
               description: COMPANY_INFO.description,
-              url: "https://concretefinish.com",
+              url: COMPANY_INFO.website,
               telephone: COMPANY_INFO.phone,
               email: COMPANY_INFO.email,
-              foundingDate: COMPANY_INFO.founded.toString(),
+              foundingDate: COMPANY_INFO.founded.toString(), 
               address: {
                 "@type": "PostalAddress",
-                streetAddress: "123 Construction Way",
-                addressLocality: "Building City",
-                addressRegion: "ST",
-                postalCode: "12345",
-                addressCountry: "US",
+                streetAddress: COMPANY_INFO.street,
+                addressLocality: COMPANY_INFO.city,
+                addressRegion: COMPANY_INFO.state,
+                postalCode: COMPANY_INFO.zip,
+                addressCountry: COMPANY_INFO.country, // 2-letter ISO 3166-1 alpha-2 code
               },
               geo: {
                 "@type": "GeoCoordinates",
                 latitude: "40.7128",
-                longitude: "-74.0060",
+                longitude: "-74.0060", // Example coordinates, update with actual location
               },
               openingHoursSpecification: [
                 {
@@ -231,15 +231,15 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebSite",
-              "@id": "https://concretefinish.com/#website",
-              url: "https://concretefinish.com",
+              "@id": `${COMPANY_INFO.website}/#website`,
+              url: COMPANY_INFO.website,
               name: COMPANY_INFO.name,
               description: COMPANY_INFO.description,
               publisher: {
                 "@type": "Organization",
-                "@id": "https://concretefinish.com/#business",
+                "@id": `${COMPANY_INFO.website}/#business`,
               },
-              potentialAction: {
+              potentialAction: { //add search functionality (code that handles the s parameter)
                 "@type": "SearchAction",
                 target: "https://concretefinish.com/?s={search_term_string}",
                 "query-input": "required name=search_term_string",
@@ -255,9 +255,9 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              "@id": "https://concretefinish.com/#organization",
+              "@id": `${COMPANY_INFO.website}/ #organization`,
               name: COMPANY_INFO.name,
-              url: "https://concretefinish.com",
+              url: COMPANY_INFO.website,
               logo: "https://concretefinish.com/logo.png",
               image: "https://concretefinish.com/og-image.jpg",
               description: COMPANY_INFO.description,

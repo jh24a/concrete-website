@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: `${COMPANY_INFO.name} - ${COMPANY_INFO.tagline}`,
     description: COMPANY_INFO.description,
-    url: "https://concretefinish.com",
+    url: COMPANY_INFO.website, 
     siteName: COMPANY_INFO.name,
     images: [
       {
@@ -36,13 +36,13 @@ export const metadata: Metadata = {
     images: ["/og-image.jpg"],
   },
   alternates: {
-    canonical: "https://concretefinish.com",
+    canonical: COMPANY_INFO.website,
   },
 }
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-background">
       {/* Skip to main content link for accessibility */}
       <a
         href="#main-content"
@@ -52,7 +52,7 @@ export default function Home() {
       </a>
 
       {/* Header - Fixed sticky positioning */}
-      <header className="fixed top-0 z-40 w-full border-b bg-white/95 backdrop-blur-sm shadow-sm">
+      <header className="fixed top-0 z-40 w-full border-b bg-background/95 backdrop-blur-sm shadow-sm">
         <div className="container flex h-20 items-center justify-between px-4 md:px-6">
           <Link
             href="/"
@@ -86,7 +86,7 @@ export default function Home() {
       {/* Add padding-top to account for fixed header */}
       <main id="main-content" className="flex-1 pt-20">
         {/* Hero Section */}
-        <section className="w-full py-16 md:py-24 lg:py-32 bg-gradient-to-b from-gray-50 to-white">
+        <section className="w-full py-16 md:py-24 lg:py-32 bg-background">
           <div className="container px-4 md:px-6">
             <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 items-center">
               <SlideInLeft>
